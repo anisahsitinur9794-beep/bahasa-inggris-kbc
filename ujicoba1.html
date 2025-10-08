@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urutkan Kata Bahasa Inggris</title>
+<style>
+    body {
+        background-color: #001f4d; /* biru tua */
+        font-family: Arial, sans-serif;
+        color: white;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+    h1 {
+        margin-top: 20px;
+    }
+    .container {
+        background-color: #87cefa; /* biru muda */
+        margin: 30px auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 70%;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .word-bank, textarea {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .word {
+        background-color: #ffffff;
+        color: black;
+        padding: 10px 15px;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: grab;
+        user-select: none;
+    }
+    .word:active {
+        cursor: grabbing;
+    }
+    textarea {
+        width: 80%;
+        height: 80px;
+        margin: 20px auto;
+        display: block;
+        resize: none;
+        font-size: 18px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        background-color: white; /* putih */
+        color: black;
+    }
+    .buttons {
+        margin-top: 20px;
+    }
+    button {
+        background-color: #ffffff;
+        color: black;
+        padding: 10px 20px;
+        margin: 5px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #ddd;
+    }
+    .feedback {
+        font-size: 20px;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<h1>Game Urutkan Kata Bahasa Inggris</h1>
+<div class="container">
+    <h2 id="question-title">Kalimat 1</h2>
+    <div id="word-bank" class="word-bank"></div>
+    <textarea id="answer-area" placeholder="Tarik kata-kata ke sini..."></textarea>
+    
+    <div class="buttons">
+        <button onclick="checkAnswer()">Hasil</button>
+        <button onclick="resetAnswer()">Reset</button>
+        <button onclick="prevQuestion()">Previous</button>
+        <button onclick="nextQuestion()">Next</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+</div>
+
+<script>
+const questions = [
+    {sentence: ["I", "am", "going", "to", "the", "market"], correct: "I am going to the market"},
+    {sentence: ["I", "will", "go", "to", "the", "mountain"], correct: "I will go to the mountain"},
+    {sentence: ["I", "will", "play", "football", "tomorrow"], correct: "I will play football tomorrow"},
+    {sentence: ["I", "am", "speaking", "english"], correct: "I am speaking english"},
+    {sentence: ["I", "went", "to", "the", "zoo", "yesterday"], correct: "I went to the zoo yesterday"}
+];
+
+let currentIndex = 0;
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function loadQuestion() {
+    document.getElementById('feedback').innerText = "";
+    document.getElementById('answer-area').value = "";
+    document.getElementById('question-title').innerText = `Kalimat ${currentIndex + 1}`;
+    const wordBank = document.getElementById('word-bank');
+    wordBank.innerHTML = "";
+    let shuffled = shuffle([...questions[currentIndex].sentence]);
+    shuffled.forEach(word => {
+        const wordDiv = document.createElement('div');
+        wordDiv.className = 'word';
+        wordDiv.draggable = true;
+        wordDiv.innerText = word;
+        wordDiv.addEventListener('dragstart', dragStart);
+        wordBank.appendChild(wordDiv);
+    });
+}
+
+function dragStart(e) {
+    e.dataTransfer.setData('text', e.target.innerText);
+    e.target.style.opacity = '0.5';
+    setTimeout(() => { e.target.style.display = 'none'; }, 0);
+}
+
+const answerArea = document.getElementById('answer-area');
+
+answerArea.addEventListener('dragover', (e) => e.preventDefault());
+answerArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData('text');
+    if (answerArea.value === "") {
+        answerArea.value = data;
+    } else {
+        answerArea.value += " " + data;
+    }
+});
+
+function checkAnswer() {
+    const userAnswer = document.getElementById('answer-area').value.trim();
+    if (userAnswer === questions[currentIndex].correct) {
+        document.getElementById('feedback').innerText = "Hebat jawaban anda benar";
+        document.getElementById('feedback').style.color = "lime";
+    } else {
+        document.getElementById('feedback').innerText = "Ma’af jawaban anda salah, ulangi lagi";
+        document.getElementById('feedback').style.color = "red";
+    }
+}
+
+function resetAnswer() {
+    loadQuestion();
+}
+
+function nextQuestion() {
+    if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        loadQuestion();
+    }
+}
+
+function prevQuestion() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        loadQuestion();
+    }
+}
+
+window.onload = loadQuestion;
+</script>
+
+</body>
+</html>
